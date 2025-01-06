@@ -1,5 +1,6 @@
 const express=require('express')
 const mongoose=require('mongoose')
+const bodyParser = require('body-parser');
 const dotenv=require('dotenv')
 const cors=require('cors')
 const path=require('path')
@@ -16,8 +17,9 @@ const corsOPtions={
     credentials:true,
 }
 app.use(cors(corsOPtions))
-
-
+app.use(express.json())
+app.use(bodyParser.json({ limit: '50mb' })); // Set JSON payload limit
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 
 mongoose.connect("mongodb://127.0.0.1:27017/PedalQuest")
@@ -25,8 +27,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/PedalQuest")
     console.log(`mongoDB connected succesfully to ${mongoose.connection.name}`);
   })
   .catch(err=>{
-    console.error('MongoDB connection error:',err);
-    
+    console.error('MongoDB connection error:',err);     
   })
   app.use('/user',userRoute)
   app.use('/admin',adminRoute)
