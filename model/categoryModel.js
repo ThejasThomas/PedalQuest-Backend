@@ -13,12 +13,22 @@ const categorySchema=new mongoose.Schema({
         type:String,
         required:true
     },
-    cloudinaryId: {  // Add this if not already present
+    cloudinaryId: { 
         type: String
     },
+    isActive: {
+         type: Boolean,
+         default: true },
+    isHidden: {
+            type: Boolean,
+            default: false
+        },
     createdAt:{
         type:Date,
         default:Date.now,
+    },
+    updatedAt: {
+        type: Date
     }
 })
 

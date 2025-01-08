@@ -25,6 +25,14 @@ const userSchema= new mongoose.Schema({
     isAdmin:{
         type:Boolean,
         default:0,
+    },
+    isBlocked:
+     { type: Boolean, 
+       default: false
+    },
+    createdAt:{
+       type: Date,
+       default: Date.now
     }
 })
 const User =mongoose.model('userss',userSchema)

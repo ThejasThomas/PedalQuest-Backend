@@ -5,10 +5,6 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  brand: {
-    type: String,
-    required: true,
-  },
   description: {
     type: String,
     required: true,
@@ -45,9 +41,15 @@ const productSchema = new mongoose.Schema({
   },
   images: [
     {
-      type: String, // Store image URLs or file paths
+      type: String,
     },
   ],
+  // rating: {
+  //   type: Number,
+  //   min: 0,
+  //   max: 5,
+  //   default: 0,
+  // },
   
  createdAt: {
     type: Date,

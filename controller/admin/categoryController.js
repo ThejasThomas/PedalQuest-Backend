@@ -3,9 +3,24 @@ const path = require('path');
 const cloudinary = require('../../config/cloudinary');
 const mongoose = require('mongoose');
 
-// Fetch all categories
 const fetchCategory = async (req, res) => {
   try {
+    const categories = await Category.find({ isHidden: false }).sort({ createdAt: -1 });
+    return res.status(200).json({
+      success: true,
+      categories
+    });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong while fetching categories"
+    });
+  }
+};
+const fetchCategoryUser = async (req, res) => {
+  try {
+    // Fetch all categories regardless of status
     const categories = await Category.find().sort({ createdAt: -1 });
     return res.status(200).json({
       success: true,
@@ -68,42 +83,55 @@ console.log(req.body);
   }
 };
 
-// Delete Category Controller (optional but recommended)
-const deleteCategory = async (req, res) => {
+const toggleCategoryListing = async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
+    const { id } = req.params;
+    const { isActive } = req.body;
     
-    if (!category) {
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid category ID format'
+      });
+    }
+
+    const newStatus = Boolean(isActive);
+    
+    const updatedCategory = await Category.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          isActive: newStatus,
+          isHidden: !newStatus,  // Set hidden status opposite of active status
+          updatedAt: new Date()
+        }
+      },
+      { new: true }
+    );
+
+    if (!updatedCategory) {
       return res.status(404).json({
         success: false,
         message: 'Category not found'
       });
     }
 
-    // Delete image from Cloudinary if exists
-    if (category.cloudinaryId) {
-      await cloudinary.uploader.destroy(category.cloudinaryId);
-    }
-
-    // Delete category from database
-    await category.deleteOne();
-
     return res.status(200).json({
       success: true,
-      message: 'Category deleted successfully'
+      message: `Category ${newStatus ? 'listed' : 'unlisted'} successfully`,
+      category: updatedCategory
     });
 
   } catch (error) {
-    console.error('Error deleting category:', error);
+    console.error('Toggle category listing error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to delete category',
+      message: 'Failed to update category',
       error: error.message
     });
   }
 };
-
-// Update Category Controller (optional but recommended)
 
 const editCategory = async (req, res) => {
   try {
@@ -180,6 +208,7 @@ const editCategory = async (req, res) => {
 module.exports = {
   addCategory,
   fetchCategory,
-  deleteCategory,
-  editCategory
+  toggleCategoryListing,
+  editCategory,
+  fetchCategoryUser
 };

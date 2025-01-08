@@ -131,6 +131,10 @@ const login = async (req, res) => {
         message: "Email is not registered, Please Signup",
       });
     }
+    
+    if (userData.isBlocked) {
+      return res.status(403).json({ message: 'Account is blocked. Please contact support.' });
+    }
 
     // Ensure user data exists before checking password
     const matchPass = await bcrypt.compare(password, userData.password);

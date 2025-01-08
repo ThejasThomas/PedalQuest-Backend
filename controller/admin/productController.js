@@ -5,9 +5,7 @@ const Product = require('../../model/productModel');
 const fetchproducts =async(req,res)=>{
   try{
      const products = await Product.find()
-    //  console.log(products.images)
 
-    // console.log(products)
      if(!products){
       return res
       .status(404)
@@ -24,12 +22,37 @@ const fetchproducts =async(req,res)=>{
     console.log(err);
   }
 }
+const fetchProductDetails =async(req,res)=>{
+  try {
+    const {id} =req.params;
 
-// Add Product Controller
+    const product = await Product.findById(id);
+
+    if(!product){
+      return res.status(404).json({
+        success:false,
+        message:"Product not found"
+      });
+    }
+    return res.status(200).json({
+      success:true,
+      message:"Product details fetched successfully",
+      product
+    })
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      success:false,
+      message:"Error fetching product details",
+      error:err.message
+    })
+    
+  }
+}
+
 const addProduct = async (req, res) => {
   const { name, brand,category,images, description, basePrice, quantity } = req.body;
   console.log(req.body)
-  // Validate required fields
   if (!name || !brand || !description || !basePrice || !quantity || !images||!category) {
     return res.status(400).json({
       message: 'Missing required fields',
@@ -67,7 +90,7 @@ const addProduct = async (req, res) => {
 const editProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body; // Get all data from request body
+    const updateData = req.body; 
     
     if (!id) {
       return res.status(400).json({ message: 'Product ID is required' });
@@ -133,14 +156,12 @@ const toggleProductListing = async (req, res) => {
       });
     }
     
-    // Validate status
     if (status !== 'Published' && status !== 'Unpublished') {
       return res.status(400).json({
         success: false,
         message: 'Invalid status value'
       });
     }
-    // Update status
     existingProduct.status = status;
     existingProduct.isHidden = status === 'Unpublished';
     existingProduct.updatedAt = new Date();
@@ -164,5 +185,5 @@ const toggleProductListing = async (req, res) => {
 
 
 
-module.exports = { addProduct,fetchproducts,editProduct,toggleProductListing };
+module.exports = { addProduct,fetchproducts,editProduct,toggleProductListing,fetchProductDetails };
 
